@@ -209,12 +209,12 @@ export function parseIntent(goal: string, preferredVertical?: string): ParsedInt
   let vertical = "google_shopping";
   const requiredSpecs: string[] = [];
 
-  if (lower.includes("laptop") || lower.includes("notebook") || lower.includes("macbook")) {
+  if (/\b(laptop|notebook|macbook|computer|pc)\b/i.test(lower)) {
     category = "Tech / Hardware";
     targetItemType = "laptop";
     vertical = "google_shopping";
     requiredSpecs.push("processor", "ram", "storage", "display", "price");
-  } else if (lower.includes("scooter") || lower.includes("ev") || lower.includes("electric")) {
+  } else if (/\b(scooter|ev|electric\s*scooter)\b/i.test(lower)) {
     category = "Urban Mobility";
     targetItemType = "electric scooter";
     vertical = "google_shopping";
@@ -386,11 +386,13 @@ export async function executeSearch(
   let fixtureData: any[] = LAPTOP_FIXTURES;
   const goalLower = intent.raw_goal.toLowerCase();
 
-  if (goalLower.includes("scooter") || goalLower.includes("ev") || goalLower.includes("bengaluru")) {
+  if (/\b(laptop|notebook|macbook|computer|pc)\b/i.test(goalLower)) {
+    fixtureData = LAPTOP_FIXTURES;
+  } else if (/\b(scooter|ev|electric\s*scooter)\b/i.test(goalLower)) {
     fixtureData = EV_SCOOTER_FIXTURES;
-  } else if (goalLower.includes("framework") || goalLower.includes("agent") || goalLower.includes("python")) {
+  } else if (/\b(framework|agent|langchain|autogen|crewai)\b/i.test(goalLower)) {
     fixtureData = AI_FRAMEWORK_FIXTURES;
-  } else if (goalLower.includes("phone") || goalLower.includes("mobile") || goalLower.includes("camera")) {
+  } else if (/\b(phone|mobile|smartphone|camera)\b/i.test(goalLower)) {
     fixtureData = PHONE_FIXTURES;
   }
 
