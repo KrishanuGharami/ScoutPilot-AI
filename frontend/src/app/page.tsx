@@ -143,7 +143,7 @@ export default function Home() {
         <section className="text-center max-w-3xl mx-auto space-y-3">
           <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-950/40 px-3.5 py-1 text-xs font-semibold text-cyan-300 backdrop-blur-sm shadow-sm shadow-cyan-900/20">
             <Sparkles className="h-3.5 w-3.5 text-cyan-400" />
-            <span>SerpApi India Hackathon 2026 Submission</span>
+            <span>SerpApi</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
@@ -337,7 +337,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="mt-16 border-t border-slate-800/80 py-8 text-center text-xs text-slate-500">
         <p>
-          ScoutPilot AI • Built for the <strong>SerpApi India Hackathon 2026 (AI Agents Track)</strong>
+          ScoutPilot AI • Built using SerpApi <strong>for everyone</strong>
         </p>
         <p className="mt-1">
           "Search live. Compare evidence. Make better decisions."
