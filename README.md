@@ -321,9 +321,3 @@ For evaluation without API keys or instant 1-click testing, ScoutPilot includes 
    - Realme 12 Pro+ 5G (64MP OmniVision OV64B 3x Periscope)
    - OnePlus Nord 4 (50MP Sony LYT-600 OIS, 5500mAh)
    - Samsung Galaxy S23 FE (50MP OIS, 3x Telephoto, DeX)
-
----
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
