@@ -42,7 +42,6 @@ export default function Home() {
 
   // App settings & status
   const [serpApiConfigured, setSerpApiConfigured] = useState(false);
-  const [apiKeyOverride, setApiKeyOverride] = useState("");
   const [demoMode, setDemoMode] = useState(true); // Default to preview mode so judges can immediately test without setup!
   const [preferredVertical, setPreferredVertical] = useState("");
   const [examples, setExamples] = useState<ExamplePrompt[]>([]);
@@ -110,7 +109,6 @@ export default function Home() {
       const res = await runResearchApi({
         goal,
         demo_mode: demoMode,
-        api_key_override: apiKeyOverride,
         preferred_vertical: preferredVertical || undefined,
         max_items: 5,
       });
@@ -134,7 +132,7 @@ export default function Home() {
     <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-cyan-500 selection:text-slate-950 font-sans">
       {/* Navbar */}
       <Navbar
-        serpApiConfigured={serpApiConfigured || !!apiKeyOverride}
+        serpApiConfigured={serpApiConfigured}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenHelp={() => setIsAboutOpen(true)}
       />
@@ -185,7 +183,7 @@ export default function Home() {
                 <p className="text-xs text-rose-300/90 whitespace-pre-line leading-relaxed">
                   {error}
                 </p>
-                {!serpApiConfigured && !apiKeyOverride && (
+                {!serpApiConfigured && (
                   <div className="pt-2">
                     <button
                       onClick={() => {
@@ -200,6 +198,40 @@ export default function Home() {
                   </div>
                 )}
               </div>
+            </div>
+          </div>
+        )}
+
+        {isLoading && (
+          <div
+            role="status"
+            aria-live="polite"
+            className="rounded-2xl border border-cyan-500/20 bg-cyan-950/20 p-5 backdrop-blur-md"
+          >
+            <div className="flex items-center gap-3">
+              <RefreshCw className="h-5 w-5 animate-spin text-cyan-400" />
+              <div>
+                <h3 className="text-sm font-semibold text-cyan-200">
+                  ScoutPilot is researching
+                </h3>
+                <p className="mt-1 text-xs text-cyan-100/70">
+                  Planning constraints, executing the selected SerpApi search,
+                  then grounding and comparing only retrieved evidence.
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 grid gap-2 text-[11px] text-slate-300 sm:grid-cols-4">
+              {["Plan", "Search", "Compare", "Recommend"].map((phase, index) => (
+                <div
+                  key={phase}
+                  className="flex items-center gap-2 rounded-lg border border-slate-800 bg-slate-950/50 px-3 py-2"
+                >
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-cyan-500/15 font-mono text-cyan-300">
+                    {index + 1}
+                  </span>
+                  {phase}
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -324,9 +356,13 @@ export default function Home() {
       <SettingsModal
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
-        apiKeyOverride={apiKeyOverride}
-        setApiKeyOverride={setApiKeyOverride}
         serpApiConfigured={serpApiConfigured}
+        onStatusChange={(isConfigured) => {
+          setSerpApiConfigured(isConfigured);
+          if (isConfigured) {
+            setDemoMode(false);
+          }
+        }}
       />
 
       <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />

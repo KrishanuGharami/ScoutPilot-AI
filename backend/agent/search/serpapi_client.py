@@ -149,6 +149,35 @@ def execute_serpapi_search(
                 res_dict = client.search(search_params)
                 raw_items = res_dict.get("news_results") or res_dict.get("organic_results") or []
 
+        elif vertical == SearchVertical.MAPS:
+            tool_name = "serpapi-search-tools/maps_search"
+            try:
+                search_func = serpapi_search_tools.maps_search(
+                    provider="function",
+                    api_key=effective_key,
+                    response_format=SearchResultFormat.JSON,
+                    mode=SearchResultMode.COMPACT,
+                    default_params=params
+                )
+                res_raw = search_func(query=query)
+                res_json = json.loads(res_raw) if isinstance(res_raw, str) else res_raw
+                raw_items = (
+                    res_json.get("local_results")
+                    or res_json.get("places_results")
+                    or res_json.get("local_map")
+                    or []
+                ) if isinstance(res_json, dict) else []
+            except Exception:
+                tool_name = "serpapi.Client (google_maps fallback)"
+                client = serpapi.Client(api_key=effective_key)
+                search_params = {"engine": "google_maps", "q": query, **params}
+                res_dict = client.search(search_params)
+                raw_items = (
+                    res_dict.get("local_results")
+                    or res_dict.get("places_results")
+                    or []
+                )
+
         else:
             # General web search
             tool_name = "serpapi-search-tools/web_search"

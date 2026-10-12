@@ -12,7 +12,7 @@ Models cover:
 
 from enum import Enum
 from typing import Dict, List, Optional, Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class StepState(str, Enum):
@@ -41,10 +41,15 @@ class SearchVertical(str, Enum):
 # ---------------------------------------------------------------------------
 
 class ResearchRequest(BaseModel):
-    """User research request with optional demo mode or temporary API key override."""
+    """User research request.
+
+    SerpApi credentials are intentionally not accepted in this public request
+    model. The backend reads them only from its environment configuration.
+    """
+    model_config = ConfigDict(extra="forbid")
+
     goal: str = Field(..., min_length=3, max_length=500, description="Natural language research goal")
     demo_mode: bool = Field(default=False, description="Use structured sample evidence if no API key is provided")
-    api_key_override: Optional[str] = Field(default=None, description="Optional SerpApi key passed from UI settings drawer")
     preferred_vertical: Optional[str] = Field(default=None, description="Optional override for engine vertical")
     max_items: int = Field(default=5, ge=1, le=10, description="Target number of items to compare")
 

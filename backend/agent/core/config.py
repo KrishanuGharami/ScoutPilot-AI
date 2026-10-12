@@ -11,8 +11,6 @@ from pydantic import BaseModel, Field
 # Try to load .env manually if exists without requiring external dependencies
 ENV_FILE_PATHS = [
     Path(__file__).resolve().parent.parent.parent / ".env",
-    Path(__file__).resolve().parent.parent.parent.parent / ".env",
-    Path(".env"),
 ]
 
 for env_path in ENV_FILE_PATHS:

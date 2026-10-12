@@ -15,6 +15,7 @@ from .models.schemas import (
 )
 from .core.security import sanitize_input_goal
 from .planner import parse_intent_and_constraints, generate_execution_plan
+from .search.engine_router import route_engine
 from .search.serpapi_client import execute_serpapi_search
 from .search.normalizer import normalize_serpapi_items
 from .comparator import compare_evidence_items
@@ -53,12 +54,12 @@ def run_scout_pipeline(request: ResearchRequest) -> ResearchResponse:
         # 3. Phase 2: SEARCH
         plan[2].status = StepState.RUNNING
         t2 = time.time()
+        _, search_params = route_engine(intent)
 
         raw_results, activity_record, mode_label = execute_serpapi_search(
             query=intent.search_queries[0],
             vertical=intent.selected_vertical,
-            params={"gl": "in", "hl": "en", "location": "India"},
-            api_key_override=request.api_key_override,
+            params=search_params,
             demo_mode=request.demo_mode
         )
         search_activity_log.append(activity_record)

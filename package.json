@@ -1,0 +1,19 @@
+{
+  "name": "scoutpilot-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ScoutPilot AI — Autonomous research and decision-support agent powered by SerpApi for the SerpApi India Hackathon 2026.",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "start": "npm --prefix frontend run start"
+  },
+  "keywords": [
+    "scoutpilot",
+    "serpapi",
+    "ai-agent",
+    "nextjs",
+    "hackathon"
+  ],
+  "license": "MIT"
+}

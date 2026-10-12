@@ -74,3 +74,17 @@ def test_demo_mode_returns_preview_fixtures(monkeypatch):
     assert len(items) > 0
     assert activity.status == "success"
     assert "Preview Demo Mode" in activity.notes
+
+
+def test_maps_router_uses_maps_vertical():
+    intent = ParsedIntent(
+        raw_goal="Find coworking spaces near Bengaluru",
+        category="local",
+        target_item_type="coworking space",
+        geography="India",
+        selected_vertical=SearchVertical.MAPS,
+        search_queries=["coworking spaces near Bengaluru"],
+    )
+    vert, params = route_engine(intent)
+    assert vert == SearchVertical.MAPS
+    assert params["location"] == "India"

@@ -55,3 +55,15 @@ def test_research_pipeline_demo_mode(client):
 def test_research_short_query_validation(client):
     res = client.post("/api/research", json={"goal": "hi", "demo_mode": True})
     assert res.status_code == 422  # Pydantic length validation error
+
+
+def test_research_rejects_client_supplied_api_key(client):
+    res = client.post(
+        "/api/research",
+        json={
+            "goal": "Find laptops under ₹70,000",
+            "demo_mode": True,
+            "api_key_override": "client-secret-that-must-not-be-accepted",
+        },
+    )
+    assert res.status_code == 422

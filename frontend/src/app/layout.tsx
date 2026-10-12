@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -12,12 +12,55 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#020617",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export const metadata: Metadata = {
-  title: "ScoutPilot AI — Search live. Compare evidence. Make better decisions.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://scoutpilot-ai.vercel.app"),
+  title: {
+    default: "ScoutPilot AI — Search live. Compare evidence. Make better decisions.",
+    template: "%s | ScoutPilot AI",
+  },
   description:
-    "Autonomous research and decision-support application powered by SerpApi for the SerpApi India Hackathon 2026 AI Agents track. Demonstrating Plan, Search, Compare, and Act capabilities.",
+    "Autonomous research and decision-support agent powered by SerpApi for the SerpApi India Hackathon 2026 AI Agents track. Demonstrates Plan, Search, Compare, and Act capabilities with transparent evidence grounding.",
+  keywords: [
+    "ScoutPilot AI",
+    "SerpApi",
+    "SerpApi India Hackathon 2026",
+    "AI Agents Track",
+    "Autonomous Research Agent",
+    "Decision Support System",
+    "Google Shopping",
+    "Agentic AI",
+    "Evidence Grounding",
+  ],
+  authors: [{ name: "ScoutPilot Team" }],
+  creator: "ScoutPilot AI",
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: "https://scoutpilot-ai.vercel.app",
+    title: "ScoutPilot AI — Autonomous Research & Decision Agent",
+    description:
+      "Search live. Compare evidence. Make better decisions. Built for the SerpApi India Hackathon 2026 AI Agents track.",
+    siteName: "ScoutPilot AI",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ScoutPilot AI — Autonomous Research Agent",
+    description:
+      "Autonomous decision-support powered by SerpApi. Real-time planning, search, comparison matrix, and action checklists.",
+  },
   icons: {
     icon: "/favicon.ico",
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 
