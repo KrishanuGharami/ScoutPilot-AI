@@ -20,17 +20,16 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://scoutpilot-ai.vercel.app"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://frontend-green-ten-30.vercel.app"),
   title: {
     default: "ScoutPilot AI — Search live. Compare evidence. Make better decisions.",
     template: "%s | ScoutPilot AI",
   },
   description:
-    "Autonomous research and decision-support agent powered by SerpApi for the SerpApi India Hackathon 2026 AI Agents track. Demonstrates Plan, Search, Compare, and Act capabilities with transparent evidence grounding.",
+    "Autonomous research and decision-support AI agent powered by SerpApi. Demonstrates Plan, Search, Compare, and Act capabilities with transparent evidence grounding.",
   keywords: [
     "ScoutPilot AI",
     "SerpApi",
-    "SerpApi India Hackathon 2026",
     "AI Agents Track",
     "Autonomous Research Agent",
     "Decision Support System",
@@ -46,7 +45,7 @@ export const metadata: Metadata = {
     url: "https://scoutpilot-ai.vercel.app",
     title: "ScoutPilot AI — Autonomous Research & Decision Agent",
     description:
-      "Search live. Compare evidence. Make better decisions. Built for the SerpApi India Hackathon 2026 AI Agents track.",
+      "Search live. Compare evidence. Make better decisions. Built for everyone",
     siteName: "ScoutPilot AI",
   },
   twitter: {
@@ -72,9 +71,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full dark antialiased`}
     >
-      <body className="min-h-full bg-slate-950 text-slate-100 flex flex-col font-sans">
+      <body
+        suppressHydrationWarning
+        className="min-h-full bg-slate-950 text-slate-100 flex flex-col font-sans"
+      >
         {children}
       </body>
     </html>
