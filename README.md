@@ -8,37 +8,12 @@
 [![Next.js 16](https://img.shields.io/badge/Next.js-16%2B-000000.svg?logo=next.js&logoColor=white)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0%2B-3178C6.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![SerpApi](https://img.shields.io/badge/SerpApi-Live%20Search%20Tools-E87A1E.svg)](https://serpapi.com/)
-[![Vercel Deployment](https://img.shields.io/badge/Vercel-Showcase%20Ready-000000.svg?logo=vercel&logoColor=white)](VERCEL_DEPLOYMENT.md)
 [![Tests Passing](https://img.shields.io/badge/pytest-20%20passed-22c55e.svg?logo=pytest&logoColor=white)](https://docs.pytest.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
-## Table of Contents
-
-- [Executive Summary](#-executive-summary)
-- [The Problem & Core Differentiators](#-the-problem--core-differentiators)
-- [System Architecture & Workflow](#-system-architecture--workflow)
-- [The Four Agent Pillars](#-the-four-agent-pillars)
-  - [1. Plan](#1-plan-intent--constraint-parsing)
-  - [2. Search](#2-search-dynamic-serpapi-routing)
-  - [3. Compare](#3-compare-schema-grounding--deterministic-scoring)
-  - [4. Act](#4-act-decision-synthesis--action-checklist)
-- [Repository Structure](#-repository-structure)
-- [SerpApi Integration Architecture](#-serpapi-integration-architecture)
-- [REST API Specification](#-rest-api-specification)
-- [Getting Started](#-deployment--getting-started)
-- [Option A: Local Full-Stack Development](#option-a-local-full-stack-development)
-- [Configuration & Environment Variables](#-configuration--environment-variables)
-- [Quality Assurance & Automated Testing](#-quality-assurance--automated-testing)
-- [Security, Privacy & Threat Modeling](#-security-privacy--threat-modeling)
-- [Curated Benchmark Fixtures](#-curated-benchmark-fixtures)
-- [Hackathon Disclosure & Compliance](#-hackathon-disclosure--compliance)
-- [License](#-license)
-
----
-
-## Executive Summary
+## Summary
 
 **ScoutPilot AI** is an autonomous research and decision-support system built for the **SerpApi India Hackathon 2026 (AI Agents Track)**.
 
@@ -141,11 +116,13 @@ ScoutPilot enforces strict evidence lineage:
 - **Canonical URL Normalization**: Strips affiliate tags, tracking parameters (`utm_*`, `gclid`, `fbclid`), and resolves redirect wrappers.
 - **Zero-Hallucination Policy**: If a vendor listing omits a specification (e.g., battery endurance or display refresh rate), ScoutPilot explicitly marks it as `"Not found"` rather than generating plausible filler.
 - **Deterministic Scoring Formula (0 to 100)**:
-  $$\text{Score} = \text{Base (45.0)} + \Delta_{\text{budget}} + \Sigma_{\text{specs}} + \text{Bonus}_{\text{link}} - \text{Penalty}_{\text{uncertainty}}$$
-  - **Budget Adherence**: $+25.0$ points if $\le \text{budget\_max}$; value bonus $+5.0$ if $> ₹5,000$ under ceiling; $-25.0$ penalty if over budget.
-  - **Verified Attributes**: $+4.0$ to $+10.0$ per confirmed critical specification.
-  - **Source Reliability**: $+5.0$ for direct merchant domain link.
-  - **Uncertainty Penalty**: $-10.0$ if $\ge 3$ required attributes are unconfirmed in the search metadata.
+
+Score = Base(45.0) + Δ(budget) + Σ(specs) + Bonus(link) − Penalty(uncertainty)
+
+- **Budget Adherence**: +25.0 points if ≤ `budget_max`; value bonus +5.0 if > ₹5,000 under ceiling; -25.0 penalty if over budget.
+- **Verified Attributes**: +4.0 to +10.0 per confirmed critical specification.
+- **Source Reliability**: +5.0 for direct merchant domain link.
+- **Uncertainty Penalty**: -10.0 if ≥ 3 required attributes are unconfirmed in the search metadata.
 
 ### 4. Act: Decision Synthesis & Action Checklist
 
@@ -160,7 +137,7 @@ The agent produces actionable, verifiable outputs:
 
 ---
 
-## 📂 Repository Structure
+## Repository Structure
 
 ```
 scoutpilot-ai/
@@ -225,35 +202,10 @@ scoutpilot-ai/
 ├── LICENSE                        # MIT License
 ├── package.json                   # Root monorepo script delegation
 ├── README.md                      # Comprehensive technical documentation
-├── VERCEL_DEPLOYMENT.md           # Step-by-step Vercel showcase deployment guide
 └── vercel.json                    # Root Vercel build configuration
 ```
 
 ---
-
-## 🔌 SerpApi Integration Architecture
-
-ScoutPilot strictly utilizes the **official recommended Python search tools** (`serpapi-search-tools` v1.0.0) alongside fallback to `serpapi.Client`:
-
-```python
-from serpapi_search_tools import shopping_search, SearchResultFormat, SearchResultMode
-
-# Instantiate callable search tool with localized geographic configuration
-search_func = shopping_search(
-    provider="function",
-    api_key=settings.get_effective_key(),
-    response_format=SearchResultFormat.JSON,
-    mode=SearchResultMode.FULL,
-    default_params={
-        "gl": "in",
-        "hl": "en",
-        "location": "India"
-    }
-)
-
-# Execute live query
-results = search_func(query="laptops for software development under 70000")
-```
 
 ### Supported Search Verticals
 
@@ -264,122 +216,13 @@ results = search_func(query="laptops for software development under 70000")
 | **News**      | `google_news`     | Product announcements, tech releases, recalls | `gl: "in", hl: "en"`                    |
 | **Maps**      | `google_maps`     | Local dealership discovery, physical ratings  | `location: "India"`                     |
 
----
-
-## 📡 REST API Specification
-
-### Endpoints Overview
-
-| Method | Path            | Description                                           | Access                |
-| :----- | :-------------- | :---------------------------------------------------- | :-------------------- |
-| `GET`  | `/api/health`   | Service readiness, version & SerpApi key availability | Public                |
-| `GET`  | `/api/examples` | Curated prompts for 1-click evaluation                | Public                |
-| `GET`  | `/api/engines`  | Supported SerpApi engines, tools & parameter specs    | Public                |
-| `POST` | `/api/research` | Full 4-pillar agent pipeline execution                | Public / Key Override |
-
-### Request: `POST /api/research`
-
-```json
-{
-  "goal": "Find three laptops available in India under ₹70,000 for software development. Compare current prices, processor, RAM, source reliability, and trade-offs. Recommend the best option and provide next steps.",
-  "demo_mode": false,
-  "preferred_vertical": "google_shopping",
-  "max_items": 5
-}
-```
-
-### Response: `POST /api/research` (Truncated)
-
-```json
-{
-  "success": true,
-  "mode": "live",
-  "session_id": "scout-8a1f3c92",
-  "timestamp": "2026-10-10T18:30:00Z",
-  "intent": {
-    "raw_goal": "Find three laptops available in India under ₹70,000...",
-    "category": "Tech / Hardware",
-    "target_item_type": "laptop",
-    "budget_max": 70000.0,
-    "budget_currency": "INR",
-    "geography": "India",
-    "target_count": 3,
-    "required_specs": ["processor", "ram", "storage", "display", "price"],
-    "selected_vertical": "google_shopping",
-    "search_queries": ["laptops under 70000 for software development"]
-  },
-  "plan": [
-    {
-      "step_id": "step-1",
-      "phase": "plan",
-      "title": "Parse Goal & Constraints",
-      "status": "completed",
-      "duration_ms": 18
-    }
-  ],
-  "search_activity": [
-    {
-      "engine": "google_shopping",
-      "query": "laptops under 70000 for software development",
-      "result_count": 5,
-      "duration_ms": 285,
-      "tool_used": "serpapi-search-tools/shopping_search",
-      "status": "success"
-    }
-  ],
-  "evidence_items": [
-    {
-      "id": "item-1",
-      "title": "ASUS Vivobook 16 (Intel Core i5-13420H, 16GB DDR5, 512GB SSD)",
-      "canonical_url": "https://www.flipkart.com/...",
-      "source_name": "Flipkart India",
-      "price_raw": "₹64,990",
-      "price_value": 64990.0,
-      "score": 90.0,
-      "constraint_checks": {
-        "budget": "pass",
-        "processor": "pass",
-        "ram": "pass"
-      },
-      "score_breakdown": ["Base score: +45.0", "Within budget: +25.0", "..."]
-    }
-  ],
-  "recommendation": {
-    "winner_id": "item-1",
-    "winner_title": "ASUS Vivobook 16...",
-    "headline_verdict": "Top Recommendation: ASUS Vivobook 16",
-    "why_it_wins": [
-      "Comfortably within budget at ₹64,990...",
-      "Features Intel Core i5-13420H..."
-    ],
-    "tradeoffs_to_accept": ["16-inch display increases carry weight..."],
-    "uncertainties_and_gaps": [
-      "Battery endurance under continuous load unverified..."
-    ]
-  },
-  "action_checklist": [
-    {
-      "id": "act-1",
-      "category": "purchase",
-      "action_text": "Inspect live pricing and seller ratings on Flipkart India.",
-      "completed": false
-    }
-  ],
-  "markdown_decision_brief": "# 🎯 ScoutPilot AI — Decision Brief\n..."
-}
-```
+ScoutPilot strictly utilizes the **official recommended Python search tools** (`serpapi-search-tools` v1.0.0) alongside fallback to `serpapi.Client`
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
-### Option A: 1-Click Serverless Vercel Deployment (Recommended)
-
-ScoutPilot AI is **100% self-contained on Vercel** using native Next.js 16 App Router Route Handlers. No separate Python server needs to be hosted for showcasing!
-
----
-
-### Option B: Local Full-Stack Development
+### Local Full-Stack Development
 
 #### 1. Clone the Repository
 
@@ -434,22 +277,7 @@ Open **`http://localhost:3000`** in your browser.
 
 ---
 
-## ⚙️ Configuration & Environment Variables
-
-| Variable              | Scope                     | Required     | Default                            | Description                                               |
-| :-------------------- | :------------------------ | :----------- | :--------------------------------- | :-------------------------------------------------------- |
-| `SERPAPI_API_KEY`     | Server (Backend / Vercel) | **Optional** | `None`                             | SerpApi key for live queries. Never exposed to browser.   |
-| `SERPAPI_TIMEOUT`     | Server (Backend)          | Optional     | `15`                               | Network timeout for SerpApi HTTP requests (seconds).      |
-| `DEFAULT_LOCATION`    | Server (Backend)          | Optional     | `India`                            | Geographic location anchor for localized results.         |
-| `DEFAULT_GL`          | Server (Backend)          | Optional     | `in`                               | Google two-letter country code.                           |
-| `DEFAULT_HL`          | Server (Backend)          | Optional     | `en`                               | Google interface language.                                |
-| `BACKEND_URL`         | Server (Vercel)           | Optional     | `None`                             | Optional dedicated FastAPI URL to proxy requests through. |
-| `NEXT_PUBLIC_API_URL` | Client (Frontend)         | Optional     | `""` (relative)                    | External backend URL if bypassing Vercel API routes.      |
-| `NEXT_PUBLIC_APP_URL` | Client (Frontend)         | Optional     | `https://scoutpilot-ai.vercel.app` | Canonical domain for OpenGraph sharing cards.             |
-
----
-
-## 🧪 Quality Assurance & Automated Testing
+## Testing
 
 ScoutPilot includes an automated test suite comprising **20 unit and integration tests** built with `pytest`:
 
@@ -458,36 +286,9 @@ cd backend
 python -m pytest -v
 ```
 
-### Test Suite Execution Output
-
-```
-tests/test_api.py::test_health_endpoint PASSED                           [  5%]
-tests/test_api.py::test_examples_endpoint PASSED                         [ 10%]
-tests/test_api.py::test_engines_endpoint PASSED                          [ 15%]
-tests/test_api.py::test_research_pipeline_demo_mode PASSED               [ 20%]
-tests/test_api.py::test_research_short_query_validation PASSED           [ 25%]
-tests/test_api.py::test_research_rejects_client_supplied_api_key PASSED  [ 30%]
-tests/test_comparator.py::test_compare_evidence_items_budget_and_scoring PASSED [ 35%]
-tests/test_normalizer.py::test_clean_url_strips_tracking_params PASSED   [ 40%]
-tests/test_normalizer.py::test_parse_price_indian_rupees PASSED          [ 45%]
-tests/test_normalizer.py::test_parse_price_usd PASSED                    [ 50%]
-tests/test_normalizer.py::test_extract_attributes PASSED                 [ 55%]
-tests/test_normalizer.py::test_normalize_and_deduplicate_items PASSED    [ 60%]
-tests/test_planner.py::test_parse_laptop_goal_with_inr_budget PASSED     [ 65%]
-tests/test_planner.py::test_parse_usd_budget_and_count PASSED            [ 70%]
-tests/test_planner.py::test_parse_budget_with_k_suffix PASSED            [ 75%]
-tests/test_planner.py::test_generate_execution_plan_steps PASSED         [ 80%]
-tests/test_search.py::test_engine_router_selection PASSED                [ 85%]
-tests/test_search.py::test_missing_api_key_raises_error_without_demo_mode PASSED [ 90%]
-tests/test_search.py::test_demo_mode_returns_preview_fixtures PASSED     [ 95%]
-tests/test_search.py::test_maps_router_uses_maps_vertical PASSED         [100%]
-
-======================= 20 passed in 0.37s =======================
-```
-
 ---
 
-## 🔒 Security, Privacy & Threat Modeling
+## Security, Privacy & Threat Modeling
 
 - **Zero Client-Side Secret Leakage**: The production `SERPAPI_API_KEY` is maintained exclusively in server environments and is never compiled into client bundles or sent to the browser.
 - **Client Session Isolation**: For evaluators who supply their own key in the UI Settings Modal, the key is saved exclusively in `sessionStorage` and transmitted via secure `x-serpapi-key` HTTPS headers. It is never persisted on any database.
@@ -496,26 +297,26 @@ tests/test_search.py::test_maps_router_uses_maps_vertical PASSED         [100%]
 
 ---
 
-## 📊 Curated Benchmark Fixtures
+## Curated Benchmark Fixtures
 
 For evaluation without API keys or instant 1-click testing, ScoutPilot includes comprehensive benchmark fixtures across four distinct domains:
 
-1. **💻 Developer Laptops in India Under ₹70k**:
+1. **Developer Laptops in India Under ₹70k**:
    - ASUS Vivobook 16 (i5-13420H, 16GB DDR5, 512GB SSD)
    - Lenovo IdeaPad Slim 3 (i5-12450H, 16GB LPDDR5, 512GB SSD)
    - HP Pavilion 15 (Ryzen 5 5625U, 16GB DDR4, 512GB SSD)
    - Acer Swift Go 14 (i5-13500H, 16GB LPDDR5, OLED 90Hz)
    - Dell Inspiron 3530 (i5-1335U, 8GB DDR4, 512GB SSD)
-2. **⚡ Urban EV Scooters in Bengaluru Under ₹1,20,000**:
+2. **Urban EV Scooters in Bengaluru Under ₹1,20,000**:
    - Ather 450S (2.9 kWh, 115 km IDC range, Ather Grid network)
    - TVS iQube S (3.4 kWh, 100 km real-world range, 32L storage)
    - Ola S1 Pro Gen 2 (4.0 kWh, 195 km certified range, MoveOS)
    - Bajaj Chetak 2901 (2.88 kWh, solid steel unibody)
-3. **🤖 2026 Open-Source AI Agent Frameworks**:
+3. **2026 Open-Source AI Agent Frameworks**:
    - LangGraph (Cyclical multi-agent state machines, persistence)
    - CrewAI (Role-playing collaborative autonomous agents)
    - Microsoft AutoGen v0.4 (Event-driven asynchronous actor model)
-4. **📱 Camera Smartphones Under ₹45k in India**:
+4. **Camera Smartphones Under ₹45k in India**:
    - Motorola Edge 50 Pro (50MP OIS + 10MP 3x Telephoto, 125W)
    - Realme 12 Pro+ 5G (64MP OmniVision OV64B 3x Periscope)
    - OnePlus Nord 4 (50MP Sony LYT-600 OIS, 5500mAh)
@@ -523,16 +324,6 @@ For evaluation without API keys or instant 1-click testing, ScoutPilot includes 
 
 ---
 
-## ⚖️ Hackathon Disclosure & Compliance
-
-In accordance with **Section 5 of the SerpApi India Hackathon Rules**:
-
-- **Track**: AI Agents Track.
-- **AI-Assisted Development Disclosure**: System architecture, agent pipelines, deterministic comparator matrices, and UI components were developed with assistance from Google DeepMind Antigravity AI pair programmer. All code was reviewed, validated, and tested by the team.
-- **Tooling Used**: Official `serpapi-search-tools` library and SerpApi REST APIs.
-
----
-
-## 📄 License
+## License
 
 This project is licensed under the [MIT License](LICENSE).
